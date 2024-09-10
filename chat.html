@@ -1,0 +1,96 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Chat - SchoolApp</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h2>Chat with <span id="chat-partner-name"></span></h2>
+            <button id="back-button">Back</button>
+        </div>
+        <div id="chat-box">
+            <!-- Messages will be displayed here -->
+        </div>
+        <form id="chat-form">
+            <input type="text" id="message-input" placeholder="Type a message..." required>
+            <button type="submit">Send</button>
+        </form>
+    </div>
+
+    <!-- Firebase SDKs -->
+    <script type="module">
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/10.13.1/firebase-app.js";
+        import { getAuth } from "https://www.gstatic.com/firebasejs/10.13.1/firebase-auth.js";
+        import { getDatabase, ref, set, onValue } from "https://www.gstatic.com/firebasejs/10.13.1/firebase-database.js";
+
+        const firebaseConfig = {
+            apiKey: "AIzaSyAVnc78CVeW18QI_8PGMoUxc8rQKuclaSM",
+            authDomain: "socialmediaapp-33856.firebaseapp.com",
+            projectId: "socialmediaapp-33856",
+            storageBucket: "socialmediaapp-33856.appspot.com",
+            messagingSenderId: "832803806835",
+            appId: "1:832803806835:web:4f4c4d1739e0cee6281406",
+            measurementId: "G-WSQL8E6VYG"
+        };
+
+        const app = initializeApp(firebaseConfig);
+        const auth = getAuth(app);
+        const database = getDatabase(app);
+
+        const chatBox = document.getElementById('chat-box');
+        const chatForm = document.getElementById('chat-form');
+        const messageInput = document.getElementById('message-input');
+        const chatPartnerName = document.getElementById('chat-partner-name');
+        const chatId = localStorage.getItem('selectedChat');
+
+        if (chatId) {
+            const chatRef = ref(database, 'chats/' + chatId);
+            const messagesRef = ref(database, 'messages/' + chatId);
+
+            // Load chat partner name
+            onValue(chatRef, (snapshot) => {
+                const chatData = snapshot.val();
+                chatPartnerName.textContent = chatData.name;
+            });
+
+            // Function to send a message
+            chatForm.addEventListener('submit', function(e) {
+                e.preventDefault();
+                const user = auth.currentUser;
+                if (user) {
+                    const message = messageInput.value;
+                    const messageId = Date.now(); // Simple unique ID for messages
+                    set(ref(database, 'messages/' + chatId + '/' + messageId), {
+                        user: user.email,
+                        message: message,
+                        timestamp: new Date().toISOString()
+                    }).then(() => {
+                        messageInput.value = '';
+                    }).catch((error) => {
+                        console.error("Error sending message: ", error);
+                    });
+                }
+            });
+
+            // Function to load messages
+            onValue(messagesRef, (snapshot) => {
+                chatBox.innerHTML = '';
+                snapshot.forEach((childSnapshot) => {
+                    const messageData = childSnapshot.val();
+                    const messageElement = document.createElement('div');
+                    messageElement.textContent = `${messageData.user}: ${messageData.message}`;
+                    chatBox.appendChild(messageElement);
+                });
+            });
+        }
+
+        document.getElementById('back-button').addEventListener('click', function() {
+            window.location.href = "chats.html";
+        });
+    </script>
+</body>
+</html>

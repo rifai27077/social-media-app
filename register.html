@@ -3,26 +3,27 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>SchoolApp - Login</title>
+    <title>SchoolApp - Register</title>
     <link rel="stylesheet" href="styles.css">
 </head>
 <body>
     <div class="container">
-        <h2>Login</h2>
+        <h2>Register</h2>
         <form>
-            <input type="text" placeholder="Email or Phone Number" required>
+            <input type="email" placeholder="Email" required>
             <input type="password" placeholder="Password" required>
-            <button type="submit">Login</button>
+            <input type="password" placeholder="Confirm Password" required>
+            <button type="submit">Register</button>
         </form>
         <div class="link">
-            <p>Don't have an account? <a href="register.html">Register here</a></p>
+            <p>Already have an account? <a href="login.html">Login here</a></p>
         </div>
     </div>
 
     <!-- Firebase SDKs -->
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/10.13.1/firebase-app.js";
-        import { getAuth, signInWithEmailAndPassword } from "https://www.gstatic.com/firebasejs/10.13.1/firebase-auth.js";
+        import { getAuth, createUserWithEmailAndPassword } from "https://www.gstatic.com/firebasejs/10.13.1/firebase-auth.js";
 
         const firebaseConfig = {
             apiKey: "AIzaSyAVnc78CVeW18QI_8PGMoUxc8rQKuclaSM",
@@ -40,16 +41,23 @@
         document.querySelector('form').addEventListener('submit', function(e) {
             e.preventDefault();
 
-            const email = document.querySelector('input[type="text"]').value;
+            const email = document.querySelector('input[type="email"]').value;
             const password = document.querySelector('input[type="password"]').value;
+            const confirmPassword = document.querySelectorAll('input[type="password"]')[1].value;
 
-            signInWithEmailAndPassword(auth, email, password)
+            if (password !== confirmPassword) {
+                alert("Passwords do not match.");
+                return;
+            }
+
+            createUserWithEmailAndPassword(auth, email, password)
                 .then(userCredential => {
-                    window.location.href = "chat.html";
+                    alert("Registration successful!");
+                    window.location.href = "login.html";
                 })
                 .catch(error => {
-                    console.error("Error logging in: ", error.message);
-                    alert("Login gagal, periksa kembali email dan password Anda.");
+                    console.error("Error registering: ", error.message);
+                    alert("Registration failed, please try again.");
                 });
         });
     </script>

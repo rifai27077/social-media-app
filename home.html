@@ -1,0 +1,258 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SchoolApp - Home</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 0;
+        }
+        header {
+            background-color: #4CAF50;
+            color: white;
+            padding: 10px;
+            text-align: center;
+        }
+        header nav a {
+            color: white;
+            margin: 0 15px;
+            text-decoration: none;
+            font-size: 18px;
+        }
+        .container {
+            padding: 20px;
+        }
+        .search-container {
+            margin-bottom: 20px;
+        }
+        .search-container input {
+            width: 100%;
+            padding: 10px;
+            border-radius: 4px;
+            border: 1px solid #ddd;
+            font-size: 16px;
+        }
+        .chat-list, .group-list, .community-list {
+            margin-top: 20px;
+        }
+        .item {
+            display: flex;
+            align-items: center;
+            padding: 10px;
+            border-bottom: 1px solid #ddd;
+            cursor: pointer;
+            transition: background-color 0.3s;
+        }
+        .item:hover {
+            background-color: #f0f0f0;
+        }
+        .item img {
+            width: 50px;
+            height: 50px;
+            border-radius: 50%;
+            margin-right: 10px;
+        }
+        .item .info {
+            flex: 1;
+        }
+        .item .info h3 {
+            margin: 0;
+            font-size: 16px;
+        }
+        .item .info p {
+            margin: 5px 0 0;
+            font-size: 14px;
+            color: #555;
+        }
+        .item img {
+            width: 50px;
+            height: 50px;
+            border-radius: 50%;
+            margin-right: 10px;
+        }
+        .item .info {
+            flex: 1;
+        }
+        .item .info h3 {
+            margin: 0;
+            font-size: 16px;
+        }
+        .item .info p {
+            margin: 5px 0 0;
+            font-size: 14px;
+            color: #555;
+}
+
+        footer {
+            margin-top: 20px;
+            text-align: center;
+        }
+        footer button {
+            padding: 10px 20px;
+            border: none;
+            border-radius: 4px;
+            background-color: #4CAF50;
+            color: white;
+            cursor: pointer;
+            font-size: 16px;
+        }
+    </style>
+</head>
+<body>
+    <header>
+        <h1>SchoolApp</h1>
+        <nav>
+            <a href="home.html">Home</a>
+            <a href="groups.html">Groups</a>
+            <a href="communities.html">Communities</a>
+            <a href="profile.html">Profile</a>
+        </nav>
+    </header>
+
+    <div class="container">
+        <div class="search-container">
+            <input type="text" id="search" placeholder="Search..." oninput="filterItems()">
+        </div>
+
+        <div class="chat-list">
+            <h2>Chats</h2>
+            <div id="chat-list">
+                <!-- List of chats will be displayed here -->
+            </div>
+        </div>
+
+        <div class="group-list">
+            <h2>Groups</h2>
+            <div id="group-list">
+                <!-- List of groups will be displayed here -->
+            </div>
+        </div>
+
+        <div class="community-list">
+            <h2>Communities</h2>
+            <div id="community-list">
+                <!-- List of communities will be displayed here -->
+            </div>
+        </div>
+
+        <footer>
+            <button id="new-chat">New Chat</button>
+            <button id="new-group">New Group</button>
+            <button id="new-community">New Community</button>
+        </footer>
+    </div>
+
+    <!-- Firebase SDKs -->
+    <script type="module">
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/10.13.1/firebase-app.js";
+        import { getAuth } from "https://www.gstatic.com/firebasejs/10.13.1/firebase-auth.js";
+        import { getDatabase, ref, onValue } from "https://www.gstatic.com/firebasejs/10.13.1/firebase-database.js";
+    
+        const firebaseConfig = {
+            apiKey: "AIzaSyAVnc78CVeW18QI_8PGMoUxc8rQKuclaSM",
+            authDomain: "socialmediaapp-33856.firebaseapp.com",
+            projectId: "socialmediaapp-33856",
+            storageBucket: "socialmediaapp-33856.appspot.com",
+            messagingSenderId: "832803806835",
+            appId: "1:832803806835:web:4f4c4d1739e0cee6281406",
+            measurementId: "G-WSQL8E6VYG"
+        };
+    
+        const app = initializeApp(firebaseConfig);
+        const auth = getAuth(app);
+        const database = getDatabase(app);
+    
+        const chatList = document.getElementById('chat-list');
+        const groupList = document.getElementById('group-list');
+        const communityList = document.getElementById('community-list');
+    
+        // Function to load chats
+        onValue(ref(database, 'chats'), (snapshot) => {
+            chatList.innerHTML = '';
+            snapshot.forEach((childSnapshot) => {
+                const chatData = childSnapshot.val();
+                const chatElement = document.createElement('div');
+                chatElement.className = 'item';
+                chatElement.innerHTML = `
+                    <img src="${chatData.avatarUrl || 'https://via.placeholder.com/50'}" alt="Chat Avatar">
+                    <div class="info">
+                        <h3>${chatData.name}</h3>
+                        <p class="latest-message">${chatData.lastMessage || 'No messages yet'}</p>
+                    </div>
+                `;
+                chatElement.addEventListener('click', () => {
+                    localStorage.setItem('selectedChat', childSnapshot.key);
+                    window.location.href = "chat.html";
+                });
+                chatList.appendChild(chatElement);
+            });
+        });
+    
+        // Function to load groups
+        onValue(ref(database, 'groups'), (snapshot) => {
+            groupList.innerHTML = '';
+            snapshot.forEach((childSnapshot) => {
+                const groupData = childSnapshot.val();
+                const groupElement = document.createElement('div');
+                groupElement.className = 'item';
+                groupElement.innerHTML = `
+                    <img src="${groupData.avatarUrl || 'https://via.placeholder.com/50'}" alt="Group Avatar">
+                    <div class="info">
+                        <h3>${groupData.name}</h3>
+                        <p>${groupData.description}</p>
+                    </div>
+                `;
+                groupList.appendChild(groupElement);
+            });
+        });
+    
+        // Function to load communities
+        onValue(ref(database, 'communities'), (snapshot) => {
+            communityList.innerHTML = '';
+            snapshot.forEach((childSnapshot) => {
+                const communityData = childSnapshot.val();
+                const communityElement = document.createElement('div');
+                communityElement.className = 'item';
+                communityElement.innerHTML = `
+                    <img src="${communityData.avatarUrl || 'https://via.placeholder.com/50'}" alt="Community Avatar">
+                    <div class="info">
+                        <h3>${communityData.name}</h3>
+                        <p>${communityData.description}</p>
+                    </div>
+                `;
+                communityList.appendChild(communityElement);
+            });
+        });
+    
+        document.getElementById('new-chat').addEventListener('click', function() {
+            window.location.href = "new-chat.html";
+        });
+    
+        document.getElementById('new-group').addEventListener('click', function() {
+            window.location.href = "new-group.html";
+        });
+    
+        document.getElementById('new-community').addEventListener('click', function() {
+            window.location.href = "new-community.html";
+        });
+    
+        function filterItems() {
+            const searchQuery = document.getElementById('search').value.toLowerCase();
+            const items = document.querySelectorAll('.item');
+            
+            items.forEach(item => {
+                const text = item.textContent.toLowerCase();
+                if (text.includes(searchQuery)) {
+                    item.style.display = '';
+                } else {
+                    item.style.display = 'none';
+                }
+            });
+        }
+    </script>
+    
+</body>
+</html>

@@ -1,0 +1,140 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SchoolApp - Group</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 0;
+        }
+        .container {
+            display: flex;
+            flex-direction: column;
+            height: 100vh;
+        }
+        header {
+            background-color: #4CAF50;
+            color: white;
+            padding: 10px;
+            text-align: center;
+        }
+        .group-info {
+            padding: 20px;
+            text-align: center;
+        }
+        .group-info img {
+            width: 100px;
+            height: 100px;
+            border-radius: 50%;
+        }
+        .group-members {
+            flex: 1;
+            overflow-y: auto;
+            padding: 20px;
+        }
+        .member-item {
+            padding: 10px;
+            border-bottom: 1px solid #ddd;
+            display: flex;
+            align-items: center;
+        }
+        .member-item img {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            margin-right: 10px;
+        }
+        footer {
+            background-color: #4CAF50;
+            color: white;
+            padding: 10px;
+            text-align: center;
+        }
+        footer button {
+            padding: 10px 20px;
+            border: none;
+            border-radius: 4px;
+            background-color: #fff;
+            color: #4CAF50;
+            font-size: 16px;
+            cursor: pointer;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>SchoolApp - Group</h1>
+        </header>
+
+        <div class="group-info">
+            <img src="https://via.placeholder.com/100" alt="Group Picture">
+            <h2 id="group-name">Group Name</h2>
+        </div>
+
+        <div class="group-members">
+            <h3>Members</h3>
+            <div id="member-list">
+                <!-- List of group members will be displayed here -->
+            </div>
+        </div>
+
+        <footer>
+            <button id="add-member">Add Member</button>
+        </footer>
+    </div>
+
+    <script type="module">
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/10.13.1/firebase-app.js";
+        import { getDatabase, ref, onValue } from "https://www.gstatic.com/firebasejs/10.13.1/firebase-database.js";
+
+        const firebaseConfig = {
+            apiKey: "AIzaSyAVnc78CVeW18QI_8PGMoUxc8rQKuclaSM",
+            authDomain: "socialmediaapp-33856.firebaseapp.com",
+            projectId: "socialmediaapp-33856",
+            storageBucket: "socialmediaapp-33856.appspot.com",
+            messagingSenderId: "832803806835",
+            appId: "1:832803806835:web:4f4c4d1739e0cee6281406",
+            measurementId: "G-WSQL8E6VYG"
+        };
+
+        const app = initializeApp(firebaseConfig);
+        const database = getDatabase(app);
+
+        const urlParams = new URLSearchParams(window.location.search);
+        const groupId = urlParams.get('groupId');
+
+        const groupNameElement = document.getElementById('group-name');
+        const memberList = document.getElementById('member-list');
+
+        // Function to load group details
+        onValue(ref(database, 'groups/' + groupId), (snapshot) => {
+            const groupData = snapshot.val();
+            groupNameElement.textContent = groupData.name;
+            document.querySelector('.group-info img').src = groupData.avatarUrl || 'https://via.placeholder.com/100';
+        });
+
+        // Function to load group members
+        onValue(ref(database, 'groupMembers/' + groupId), (snapshot) => {
+            memberList.innerHTML = '';
+            snapshot.forEach((childSnapshot) => {
+                const memberData = childSnapshot.val();
+                const memberElement = document.createElement('div');
+                memberElement.classList.add('member-item');
+                memberElement.innerHTML = `
+                    <img src="${memberData.avatarUrl || 'https://via.placeholder.com/40'}" alt="Member Picture">
+                    <div class="member-info">${memberData.name}</div>
+                `;
+                memberList.appendChild(memberElement);
+            });
+        });
+
+        document.getElementById('add-member').addEventListener('click', function() {
+            window.location.href = `add-member.html?groupId=${groupId}`;
+        });
+    </script>
+</body>
+</html>

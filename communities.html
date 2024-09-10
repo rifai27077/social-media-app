@@ -1,0 +1,140 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SchoolApp - Communities</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 0;
+        }
+        .container {
+            display: flex;
+            flex-direction: column;
+            height: 100vh;
+        }
+        header {
+            background-color: #4CAF50;
+            color: white;
+            padding: 10px;
+            text-align: center;
+        }
+        nav a {
+            color: white;
+            margin: 0 10px;
+            text-decoration: none;
+        }
+        .community-list {
+            flex: 1;
+            overflow-y: auto;
+            padding: 10px;
+        }
+        .community-item {
+            padding: 10px;
+            border-bottom: 1px solid #ddd;
+            display: flex;
+            align-items: center;
+        }
+        .community-item img {
+            width: 50px;
+            height: 50px;
+            border-radius: 50%;
+            margin-right: 10px;
+        }
+        .community-info {
+            display: flex;
+            flex-direction: column;
+        }
+        .community-name {
+            font-weight: bold;
+        }
+        footer {
+            background-color: #4CAF50;
+            color: white;
+            padding: 10px;
+            text-align: center;
+        }
+        footer button {
+            padding: 10px 20px;
+            border: none;
+            border-radius: 4px;
+            background-color: #fff;
+            color: #4CAF50;
+            font-size: 16px;
+            cursor: pointer;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>SchoolApp - Communities</h1>
+            <nav>
+                <a href="home.html">Home</a>
+                <a href="groups.html">Groups</a>
+                <a href="communities.html">Communities</a>
+                <a href="profile.html">Profile</a>
+            </nav>
+        </header>
+
+        <div class="community-list">
+            <h2>Communities</h2>
+            <div id="community-list">
+                <!-- List of communities will be displayed here -->
+            </div>
+        </div>
+
+        <footer>
+            <button id="new-community">New Community</button>
+        </footer>
+    </div>
+
+    <script type="module">
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/10.13.1/firebase-app.js";
+        import { getAuth } from "https://www.gstatic.com/firebasejs/10.13.1/firebase-auth.js";
+        import { getDatabase, ref, onValue } from "https://www.gstatic.com/firebasejs/10.13.1/firebase-database.js";
+
+        const firebaseConfig = {
+            apiKey: "AIzaSyAVnc78CVeW18QI_8PGMoUxc8rQKuclaSM",
+            authDomain: "socialmediaapp-33856.firebaseapp.com",
+            projectId: "socialmediaapp-33856",
+            storageBucket: "socialmediaapp-33856.appspot.com",
+            messagingSenderId: "832803806835",
+            appId: "1:832803806835:web:4f4c4d1739e0cee6281406",
+            measurementId: "G-WSQL8E6VYG"
+        };
+
+        const app = initializeApp(firebaseConfig);
+        const auth = getAuth(app);
+        const database = getDatabase(app);
+
+        const communityList = document.getElementById('community-list');
+
+        // Function to load communities
+        onValue(ref(database, 'communities'), (snapshot) => {
+            communityList.innerHTML = '';
+            snapshot.forEach((childSnapshot) => {
+                const communityData = childSnapshot.val();
+                const communityElement = document.createElement('div');
+                communityElement.classList.add('community-item');
+                communityElement.innerHTML = `
+                    <img src="${communityData.avatarUrl || 'https://via.placeholder.com/50'}" alt="Community Picture">
+                    <div class="community-info">
+                        <div class="community-name">${communityData.name}</div>
+                    </div>
+                `;
+                communityElement.addEventListener('click', () => {
+                    window.location.href = `community.html?communityId=${childSnapshot.key}`;
+                });
+                communityList.appendChild(communityElement);
+            });
+        });
+
+        document.getElementById('new-community').addEventListener('click', function() {
+            window.location.href = "new-community.html";
+        });
+    </script>
+</body>
+</html>

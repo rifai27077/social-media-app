@@ -1,0 +1,116 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>New Community - SchoolApp</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 0;
+        }
+        .container {
+            padding: 20px;
+        }
+        .header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            background-color: #4CAF50;
+            color: white;
+            padding: 10px;
+        }
+        .header h1 {
+            margin: 0;
+        }
+        .header button {
+            background: none;
+            border: none;
+            color: white;
+            font-size: 16px;
+            cursor: pointer;
+        }
+        .form-group {
+            margin-bottom: 20px;
+        }
+        .form-group label {
+            display: block;
+            margin-bottom: 5px;
+        }
+        .form-group input {
+            width: 100%;
+            padding: 10px;
+            border-radius: 4px;
+            border: 1px solid #ddd;
+        }
+        .form-group button {
+            padding: 10px;
+            border: none;
+            border-radius: 4px;
+            background-color: #4CAF50;
+            color: white;
+            cursor: pointer;
+            font-size: 16px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>New Community</h1>
+            <button id="back-button">Back</button>
+        </div>
+
+        <div class="form-group">
+            <label for="community-name">Community Name:</label>
+            <input type="text" id="community-name" placeholder="Enter community name">
+        </div>
+
+        <div class="form-group">
+            <label for="community-description">Community Description:</label>
+            <input type="text" id="community-description" placeholder="Enter community description">
+        </div>
+
+        <div class="form-group">
+            <button id="create-community">Create Community</button>
+        </div>
+    </div>
+
+    <script type="module">
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/10.13.1/firebase-app.js";
+        import { getDatabase, ref, set } from "https://www.gstatic.com/firebasejs/10.13.1/firebase-database.js";
+
+        const firebaseConfig = {
+            apiKey: "AIzaSyAVnc78CVeW18QI_8PGMoUxc8rQKuclaSM",
+            authDomain: "socialmediaapp-33856.firebaseapp.com",
+            projectId: "socialmediaapp-33856",
+            storageBucket: "socialmediaapp-33856.appspot.com",
+            messagingSenderId: "832803806835",
+            appId: "1:832803806835:web:4f4c4d1739e0cee6281406",
+            measurementId: "G-WSQL8E6VYG"
+        };
+
+        const app = initializeApp(firebaseConfig);
+        const database = getDatabase(app);
+
+        document.getElementById('create-community').addEventListener('click', function() {
+            const communityName = document.getElementById('community-name').value;
+            const communityDescription = document.getElementById('community-description').value;
+            const newCommunityRef = ref(database, 'communities/' + Date.now()); // Unique ID for the community
+            set(newCommunityRef, {
+                name: communityName,
+                description: communityDescription
+            }).then(() => {
+                window.location.href = "home.html";
+            }).catch((error) => {
+                console.error("Error creating community: ", error);
+            });
+        });
+
+        document.getElementById('back-button').addEventListener('click', function() {
+            window.location.href = "home.html";
+        });
+    </script>
+</body>
+</html>
